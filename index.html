@@ -179,12 +179,20 @@ const products = [
 ].filter((p,i,a)=> !(p.name==="面筋" && a.findIndex(x=>x.name==="面筋")!==i));
 
 const cats = ["全部","素菜豆制品","肉类","丸类海鲜"];
+let favoritesOnly = false; // 默认进入页面显示全部菜品
 const qty = {};
 products.forEach(p=>qty[p.name]=0);
 let activeCat="全部";
 const STORAGE_KEY = "laoqian_order_cart_v2";
 const FAV_KEY = "laoqian_order_favorites_v1";
-let favorites = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || "[]"));
+let favorites = new Set();
+try {
+  const savedFavorites = JSON.parse(localStorage.getItem(FAV_KEY) || "[]");
+  if (Array.isArray(savedFavorites)) favorites = new Set(savedFavorites.filter(name => typeof name === "string"));
+} catch(e) {
+  // 收藏数据损坏或浏览器存储不可用时，忽略旧收藏，保证菜单仍可正常显示。
+  favorites = new Set();
+}
 try {
   const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
   if (saved.qty) products.forEach(p => qty[p.name] = Math.max(0, Number(saved.qty[p.name]) || 0));
@@ -243,7 +251,7 @@ function toast(msg){$("toast").textContent=msg;$("toast").classList.add("show");
 $("search").addEventListener("input",()=>{$("clearSearch").style.display=$("search").value?"block":"none";renderMenu()});
 $("clearSearch").onclick=()=>{$("search").value="";$("clearSearch").style.display="none";renderMenu()};
 $("viewCart").onclick=openCart;$("confirmBtn").onclick=openCart;$("doneBtn").onclick=closeCart;
-$("copyList").onclick=async()=>{const chosen=products.filter(p=>qty[p.name]>0);if(!chosen.length){toast("清单还是空的");return}const lines=chosen.map(p=>`${p.name} × ${qty[p.name]} ${p.unit} = ${(p.price*qty[p.name]).toFixed(2)}元`);lines.push(`合计：${totalQty()}件，${total().toFixed(2)}元`);const text=lines.join("\\n");try{await navigator.clipboard.writeText(text);toast("点单清单已复制")}catch(e){const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();toast("点单清单已复制")}};
+$("copyList").onclick=async()=>{const chosen=products.filter(p=>qty[p.name]>0);if(!chosen.length){toast("清单还是空的");return}const lines=chosen.map(p=>`${p.name} × ${qty[p.name]} ${p.unit} = ${(p.price*qty[p.name]).toFixed(2)}元`);lines.push(`合计：${totalQty()}件，${total().toFixed(2)}元`);const text=lines.join("\n");try{await navigator.clipboard.writeText(text);toast("点单清单已复制")}catch(e){const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();toast("点单清单已复制")}};
 $("overlay").addEventListener("click",e=>{if(e.target===$("overlay"))closeCart()});
 $("clearCart").onclick=()=>{if(!totalQty()){toast("清单已经是空的");return}if(confirm("确定清空本次所有已选菜品吗？")){products.forEach(p=>qty[p.name]=0);persistCart();renderMenu();renderTotals();renderCart();toast("已清空本次点单")}};
 $("resetBtn").onclick=()=>{if(!totalQty()){toast("当前还没有点单");return}if(confirm("确定重置本次点单吗？")){products.forEach(p=>qty[p.name]=0);persistCart();renderMenu();renderTotals();closeCart();toast("已重置，可以重新点单")}};
