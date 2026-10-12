@@ -8,7 +8,7 @@
   "theme_color": "#d4b89c",
   "icons": [
     {
-      "src": "mascot.png"
+      "src": < img class="mascot-float" src="/laoqian-order/mascot.png" alt="噜串串吉祥物">
       "sizes": "1024x1024",
       "type": "image/png"
     }
