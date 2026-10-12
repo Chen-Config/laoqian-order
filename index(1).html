@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#9f2638">
+<title>老钱铁板烧 · 随身点单</title>
+<style>
+:root{--red:#a3293b;--red2:#c3474c;--cream:#f7f3ed;--ink:#2b2623;--muted:#8f8580;--line:#eee6df;--green:#2d8068}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+button,input{font:inherit}
+.hero{padding:24px 20px 20px;color:#fff7ef;background:linear-gradient(135deg,#842033,#b73945);border-radius:0 0 26px 26px;box-shadow:0 8px 24px #7c1f2a25}
+.hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.kicker{font-size:11px;letter-spacing:2px;opacity:.8;text-transform:uppercase}
+h1{font-size:26px;letter-spacing:2px;margin:5px 0 4px;font-weight:850}
+.subtitle{font-size:12px;opacity:.85}
+.reset{border:1px solid #ffffff70;color:white;background:#ffffff12;border-radius:999px;padding:8px 12px;font-size:12px;white-space:nowrap}
+.hero-metrics{display:flex;gap:10px;margin-top:18px}
+.metric{flex:1;padding:11px 13px;background:#ffffff15;border:1px solid #ffffff1c;border-radius:15px}
+.metric small{display:block;font-size:11px;opacity:.8;margin-bottom:4px}
+.metric strong{font-size:21px;font-weight:800}
+.toolbar{padding:14px 14px 8px;position:sticky;top:0;z-index:5;background:linear-gradient(var(--cream) 85%,#f7f3ed00)}
+.searchbox{display:flex;align-items:center;gap:8px;background:white;border:1px solid #eee6df;border-radius:14px;padding:0 13px;box-shadow:0 3px 10px #3b211008}
+.searchbox span{font-size:17px;color:var(--muted)}
+.searchbox input{width:100%;border:0;outline:0;background:transparent;padding:13px 0;font-size:14px}
+.categories{display:flex;gap:8px;overflow-x:auto;padding:12px 1px 4px;scrollbar-width:none}
+.categories::-webkit-scrollbar{display:none}
+.chip{border:1px solid #e9dfd7;background:#fff;color:#746963;border-radius:999px;padding:9px 14px;white-space:nowrap;font-size:12px}
+.chip.active{background:var(--red);border-color:var(--red);color:#fff;font-weight:700;box-shadow:0 4px 10px #a3293828}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:12px 17px 10px}
+.section-head h2{font-size:17px;margin:0;font-weight:800}
+.section-head span{font-size:12px;color:var(--muted)}
+.menu{padding:0 12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.card{min-width:0;background:#fff;border:1px solid #f0e9e3;border-radius:17px;padding:13px 12px 11px;box-shadow:0 3px 10px #3b211006;display:flex;flex-direction:column;min-height:130px}
+.card-top{display:flex;justify-content:space-between;gap:5px;align-items:flex-start}
+.name{font-size:14px;font-weight:750;line-height:1.45;overflow-wrap:anywhere}
+.tag{font-size:10px;color:#9c8b80;background:#f8f4f0;padding:3px 5px;border-radius:5px;white-space:nowrap;flex-shrink:0}
+.price{margin-top:10px;color:var(--red);font-size:20px;font-weight:850;letter-spacing:-.3px}
+.price small{font-size:11px;font-weight:500;color:#9a8e86;letter-spacing:0}
+.controls{margin-top:auto;padding-top:12px;display:flex;justify-content:flex-end;align-items:center;gap:12px}
+.qty{font-size:14px;font-weight:800;min-width:12px;text-align:center}
+.step{width:31px;height:31px;border:0;border-radius:50%;display:grid;place-items:center;font-size:20px;line-height:1}
+.step.minus{background:#f5f0eb;color:#82756c}
+.step.minus:disabled{opacity:.35}
+.step.plus{background:var(--red);color:white;box-shadow:0 3px 8px #a3293829}
+.empty{grid-column:1/-1;text-align:center;padding:42px 10px;color:var(--muted);font-size:14px}
+.note{margin:16px 17px 0;font-size:11px;color:#9a8e86;line-height:1.6}
+.bottom{position:fixed;z-index:8;bottom:0;left:0;right:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#fffdfbf2;backdrop-filter:blur(15px);border-top:1px solid #e9e1db;display:flex;align-items:center;gap:12px}
+.cart-summary{flex:1;min-width:0}
+.cart-label{font-size:11px;color:var(--muted);margin-bottom:3px}
+.total-line{display:flex;align-items:baseline;gap:6px}
+.total{font-size:25px;font-weight:900;color:var(--red);letter-spacing:-.5px}
+.currency{font-size:12px;color:var(--red);font-weight:700}
+.items-count{font-size:11px;color:#82766e}
+.view-cart{background:#f7efea;color:#8d2636;border:0;border-radius:999px;padding:11px 12px;font-size:12px;font-weight:700;white-space:nowrap}
+.confirm{border:0;background:var(--red);color:#fff;border-radius:999px;padding:13px 20px;font-size:14px;font-weight:800;white-space:nowrap;box-shadow:0 5px 13px #a3293830}
+.confirm:disabled{opacity:.38;box-shadow:none}
+.overlay{position:fixed;inset:0;background:#1e15136b;z-index:20;display:none;align-items:flex-end}
+.overlay.show{display:flex}
+.sheet{background:#fffdfb;width:100%;max-height:82vh;border-radius:24px 24px 0 0;padding:20px 17px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;box-shadow:0 -8px 30px #0002}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:15px;border-bottom:1px solid var(--line)}
+.sheet-head h3{font-size:18px;margin:0}
+.text-btn{border:0;background:transparent;color:var(--red);font-size:13px;padding:8px}
+.cart-list{overflow:auto;flex:1;min-height:80px}
+.cart-row{display:flex;align-items:center;gap:10px;padding:14px 0;border-bottom:1px solid #f2ece7}
+.cart-info{flex:1;min-width:0}
+.cart-name{font-size:14px;font-weight:700}
+.cart-detail{font-size:11px;color:var(--muted);margin-top:4px}
+.cart-subtotal{font-size:14px;font-weight:800;color:var(--red);min-width:54px;text-align:right}
+.mini-controls{display:flex;align-items:center;gap:8px}
+.mini-controls button{width:28px;height:28px;border-radius:50%;border:1px solid #e8ddd5;background:white;color:#6c5c53;font-size:17px}
+.mini-controls b{font-size:12px;min-width:10px;text-align:center}
+.sheet-bottom{padding-top:15px}
+.sheet-total{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#756960}
+.sheet-total strong{font-size:24px;color:var(--red)}
+.sheet .confirm{width:100%;padding:14px}
+.sheet-actions{display:grid;grid-template-columns:1fr 1.5fr;gap:9px}.share-btn{border:1px solid #e3d5cc;background:#fff;color:#8e2938;border-radius:999px;font-size:13px;font-weight:700;padding:12px 8px}
+.toast{position:fixed;z-index:40;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#292321eF;color:#fff;padding:10px 16px;border-radius:999px;font-size:12px;display:none;white-space:nowrap}
+.toast.show{display:block}
+
+.quickbar{display:flex;align-items:center;gap:8px;padding:3px 15px 4px;overflow:hidden}
+.quick-chip{border:1px solid #e8ddd5;background:#fff;color:#75675e;border-radius:999px;padding:8px 11px;font-size:11px;white-space:nowrap}
+.quick-chip.selected{background:#f2e2df;border-color:#dfb7b5;color:#942a39;font-weight:700}
+.quick-hint{font-size:10px;color:#a39890;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fav-star{border:0;background:transparent;color:#b7832f;font-size:18px;padding:0 0 0 4px;line-height:1}
+.card-name-line{display:flex;align-items:flex-start;gap:3px}
+.card-name-line .name{flex:1}
+.card{position:relative}
+.card:active{transform:scale(.99)}
+.small-toast{font-size:11px}
+
+@media(min-width:600px){body{max-width:600px;margin:0 auto;padding-bottom:110px}.hero{border-radius:0 0 26px 26px}.bottom{left:50%;transform:translateX(-50%);width:100%;max-width:600px}.overlay{justify-content:center;align-items:center}.sheet{max-width:560px;border-radius:24px;max-height:80vh}.menu{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-top">
+    <div><div class="kicker">PERSONAL ORDER HELPER</div><h1>老钱铁板烧</h1><div class="subtitle">随身点单 · 价格清晰 · 自动算总价</div></div>
+    <button class="reset" id="resetBtn">重置本次</button>
+  </div>
+  <div class="hero-metrics">
+    <div class="metric"><small>已选菜品数量</small><strong id="qtyMetric">0 <span style="font-size:12px;font-weight:500">件</span></strong></div>
+    <div class="metric"><small>当前预计总价</small><strong id="totalMetric">¥0.00</strong></div>
+  </div>
+</header>
+<div class="toolbar">
+  <label class="searchbox"><span>⌕</span><input id="search" type="search" placeholder="搜菜名，比如：鸡心、鱿鱼" autocomplete="off"><span id="clearSearch" style="display:none;cursor:pointer">×</span></label>
+  <nav class="categories" id="categories"></nav>
+  <div class="quickbar"><button id="favoritesToggle" class="quick-chip">☆ 常点菜品</button><button id="allToggle" class="quick-chip selected">全部菜品</button><span class="quick-hint">点菜名旁 ☆ 可加入常点</span></div>
+</div>
+<div class="section-head"><h2>菜单列表</h2><span id="resultCount">菜单载入中</span></div>
+<main class="menu" id="menu"></main>
+<p class="note">价格按你提供的菜单照片录入。个别菜名或计价单位可能因照片清晰度存在识别误差，第一次使用建议核对；本工具仅帮你估算点单金额；已选数量会自动保存在当前浏览器中，重新打开通常可以继续点单。</p>
+<footer class="bottom">
+  <div class="cart-summary"><div class="cart-label">本次点单总计</div><div class="total-line"><span class="currency">¥</span><strong class="total" id="bottomTotal">0.00</strong><span class="items-count" id="bottomQty">0 件</span></div></div>
+  <button class="view-cart" id="viewCart">清单 <span id="cartBadge">0</span></button>
+  <button class="confirm" id="confirmBtn" disabled>点好了</button>
+</footer>
+<div class="overlay" id="overlay" role="dialog" aria-modal="true">
+  <section class="sheet">
+    <div class="sheet-head"><h3>我的点单清单</h3><button class="text-btn" id="clearCart">全部清空</button></div>
+    <div class="cart-list" id="cartList"></div>
+    <div class="sheet-bottom"><div class="sheet-total"><span>共 <b id="sheetQty">0</b> 件（串 / 把 / 份）</span><strong id="sheetTotal">¥0.00</strong></div><div class="sheet-actions"><button class="share-btn" id="copyList">复制点单清单</button><button class="confirm" id="doneBtn">返回菜单继续点</button></div></div>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const products = [
+{name:"年糕",price:1,unit:"串",cat:"素菜豆制品"},
+{name:"豆腐皮卷韭菜",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"豆腐皮卷金针菇",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"四季豆",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"香菇",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"娃娃菜",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"青菜",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"花菜",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"芋头",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"豆腐干",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"里脊肉",price:1.5,unit:"串",cat:"肉类"},
+{name:"双汇王中王",price:2,unit:"串",cat:"肉类"},
+{name:"冻豆腐",price:2,unit:"串",cat:"素菜豆制品"},
+{name:"牛板筋",price:2,unit:"串",cat:"肉类"},
+{name:"面筋",price:2,unit:"串",cat:"素菜豆制品"},
+{name:"面筋",price:2,unit:"串",cat:"素菜豆制品"},
+{name:"翅尖",price:2,unit:"串",cat:"肉类"},
+{name:"里脊排骨",price:2,unit:"串",cat:"肉类"},
+{name:"鸡心",price:2,unit:"串",cat:"肉类"},
+{name:"鸡胗",price:2,unit:"串",cat:"肉类"},
+{name:"鱼豆腐",price:2,unit:"串",cat:"丸类海鲜"},
+{name:"鱼丸",price:2,unit:"串",cat:"丸类海鲜"},
+{name:"热狗肠",price:2.5,unit:"串",cat:"肉类"},
+{name:"脆皮豆饼",price:2.5,unit:"串",cat:"素菜豆制品"},
+{name:"澳洲大串",price:2.5,unit:"串",cat:"肉类"},
+{name:"骨肉相连",price:2.5,unit:"串",cat:"肉类"},
+{name:"川香鸡柳",price:2.5,unit:"串",cat:"肉类"},
+{name:"火龙串",price:2.5,unit:"串",cat:"肉类"},
+{name:"羊肉",price:2.5,unit:"串",cat:"肉类"},
+{name:"鸭肠",price:2.5,unit:"串",cat:"肉类"},
+{name:"面皮粉蒸片",price:3,unit:"串",cat:"素菜豆制品"},
+{name:"辣妹子",price:3,unit:"串",cat:"肉类"},
+{name:"大肠筋",price:3,unit:"串",cat:"肉类"},
+{name:"鸡皮棒",price:3,unit:"串",cat:"肉类"},
+{name:"土豆片",price:3,unit:"串",cat:"素菜豆制品"},
+{name:"青椒脆骨",price:3,unit:"串",cat:"肉类"},
+{name:"掌中宝",price:3,unit:"串",cat:"肉类"},
+{name:"豆腐泡",price:3,unit:"串",cat:"素菜豆制品"},
+{name:"大罗虾",price:3,unit:"串",cat:"丸类海鲜"},
+{name:"鱿鱼须",price:4,unit:"串",cat:"丸类海鲜"},
+{name:"翅中",price:4.5,unit:"串",cat:"肉类"},
+{name:"鱼片",price:5,unit:"串",cat:"丸类海鲜"},
+{name:"香酥小鸡排",price:6,unit:"串",cat:"肉类"},
+{name:"大鱿鱼",price:6,unit:"条",cat:"丸类海鲜"},
+{name:"小腊肠",price:8,unit:"把",cat:"肉类"},
+{name:"鸭头",price:8,unit:"串",cat:"肉类"},
+{name:"小鲜牛肉",price:10,unit:"把",cat:"肉类"},
+{name:"大鸡排",price:10,unit:"份",cat:"肉类"},
+{name:"牛油粒",price:15,unit:"把",cat:"肉类"}
+].filter((p,i,a)=> !(p.name==="面筋" && a.findIndex(x=>x.name==="面筋")!==i));
+
+const cats = ["全部","素菜豆制品","肉类","丸类海鲜"];
+const qty = {};
+products.forEach(p=>qty[p.name]=0);
+let activeCat="全部";
+const STORAGE_KEY = "laoqian_order_cart_v2";
+const FAV_KEY = "laoqian_order_favorites_v1";
+let favorites = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || "[]"));
+try {
+  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+  if (saved.qty) products.forEach(p => qty[p.name] = Math.max(0, Number(saved.qty[p.name]) || 0));
+} catch(e) {}
+function persistCart() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({qty, savedAt: Date.now()})); } catch(e) {}
+}
+function persistFavorites() {
+  try { localStorage.setItem(FAV_KEY, JSON.stringify([...favorites])); } catch(e) {}
+}
+const $=id=>document.getElementById(id);
+const money=n=>"¥"+(Math.round((n+Number.EPSILON)*100)/100).toFixed(2);
+const totalQty=()=>products.reduce((s,p)=>s+(qty[p.name]||0),0);
+const total=()=>products.reduce((s,p)=>s+p.price*(qty[p.name]||0),0);
+function renderCats(){
+  $("categories").innerHTML=cats.map(c=>`<button class="chip ${c===activeCat?"active":""}" data-cat="${c}">${c==="全部"?"全部菜品":c}</button>`).join("");
+  $("categories").querySelectorAll("button").forEach(b=>b.onclick=()=>{activeCat=b.dataset.cat;renderCats();renderMenu()});
+}
+function renderMenu(){
+ const q=$("search").value.trim().toLowerCase();
+ const filtered=products.filter(p=>(activeCat==="全部"||p.cat===activeCat)&&p.name.toLowerCase().includes(q)&&(!favoritesOnly||favorites.has(p.name)));
+ $("resultCount").textContent=`显示 ${filtered.length} 款`;
+ $("menu").innerHTML=filtered.length?filtered.map(p=>`<article class="card">
+   <div class="card-top"><div class="card-name-line"><div class="name">${p.name}</div><button class="fav-star" data-fav="${p.name}" aria-label="设为常点">${favorites.has(p.name)?"★":"☆"}</button></div><span class="tag">${p.cat==="素菜豆制品"?"素菜":p.cat==="丸类海鲜"?"海鲜/丸类":p.cat}</span></div>
+   <div class="price">${p.price%1? p.price.toFixed(1):p.price}<small> 元 / ${p.unit}</small></div>
+   <div class="controls"><button class="step minus" data-name="${p.name}" data-delta="-1" ${!qty[p.name]?"disabled":""} aria-label="减少">−</button><span class="qty">${qty[p.name]||0}</span><button class="step plus" data-name="${p.name}" data-delta="1" aria-label="增加">＋</button></div>
+ </article>`).join(""):`<div class="empty">没有找到这道菜<br>换个关键词试试看</div>`;
+ $("menu").querySelectorAll("button.step").forEach(b=>b.onclick=()=>change(b.dataset.name,Number(b.dataset.delta)));
+ $("menu").querySelectorAll("button.fav-star").forEach(b=>b.onclick=(e)=>{e.stopPropagation();const name=b.dataset.fav;if(favorites.has(name)){favorites.delete(name);toast("已取消常点："+name)}else{favorites.add(name);toast("已加入常点："+name)}persistFavorites();renderMenu();renderQuickbar();});
+}
+function renderQuickbar(){
+ $("favoritesToggle").classList.toggle("selected",favoritesOnly);
+ $("allToggle").classList.toggle("selected",!favoritesOnly);
+ $("favoritesToggle").textContent=`☆ 常点菜品${favorites.size?` (${favorites.size})`:""}`;
+}
+function renderTotals(){
+ const q=totalQty(),t=total();
+ $("qtyMetric").innerHTML=`${q} <span style="font-size:12px;font-weight:500">件</span>`;
+ $("totalMetric").textContent=money(t);$("bottomTotal").textContent=t.toFixed(2);
+ $("bottomQty").textContent=`${q} 件`;$("cartBadge").textContent=q;
+ $("confirmBtn").disabled=q===0;
+ $("sheetQty").textContent=q;$("sheetTotal").textContent=money(t);
+}
+function change(name,delta){qty[name]=Math.max(0,(qty[name]||0)+delta);persistCart();renderMenu();renderTotals();if($("overlay").classList.contains("show"))renderCart();}
+function renderCart(){
+ const chosen=products.filter(p=>qty[p.name]>0);
+ $("cartList").innerHTML=chosen.length?chosen.map(p=>`<div class="cart-row">
+ <div class="cart-info"><div class="cart-name">${p.name}</div><div class="cart-detail">${money(p.price)} / ${p.unit}</div></div>
+ <div class="mini-controls"><button data-name="${p.name}" data-delta="-1">−</button><b>${qty[p.name]}</b><button data-name="${p.name}" data-delta="1">＋</button></div>
+ <div class="cart-subtotal">${money(p.price*qty[p.name])}</div></div>`).join(""):`<div class="empty">还没选菜，回菜单点几个吧～</div>`;
+ $("cartList").querySelectorAll("button").forEach(b=>b.onclick=()=>change(b.dataset.name,Number(b.dataset.delta)));
+}
+function openCart(){renderCart();$("overlay").classList.add("show");}
+function closeCart(){$("overlay").classList.remove("show");}
+function toast(msg){$("toast").textContent=msg;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1900);}
+$("search").addEventListener("input",()=>{$("clearSearch").style.display=$("search").value?"block":"none";renderMenu()});
+$("clearSearch").onclick=()=>{$("search").value="";$("clearSearch").style.display="none";renderMenu()};
+$("viewCart").onclick=openCart;$("confirmBtn").onclick=openCart;$("doneBtn").onclick=closeCart;
+$("copyList").onclick=async()=>{const chosen=products.filter(p=>qty[p.name]>0);if(!chosen.length){toast("清单还是空的");return}const lines=chosen.map(p=>`${p.name} × ${qty[p.name]} ${p.unit} = ${(p.price*qty[p.name]).toFixed(2)}元`);lines.push(`合计：${totalQty()}件，${total().toFixed(2)}元`);const text=lines.join("\\n");try{await navigator.clipboard.writeText(text);toast("点单清单已复制")}catch(e){const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();toast("点单清单已复制")}};
+$("overlay").addEventListener("click",e=>{if(e.target===$("overlay"))closeCart()});
+$("clearCart").onclick=()=>{if(!totalQty()){toast("清单已经是空的");return}if(confirm("确定清空本次所有已选菜品吗？")){products.forEach(p=>qty[p.name]=0);persistCart();renderMenu();renderTotals();renderCart();toast("已清空本次点单")}};
+$("resetBtn").onclick=()=>{if(!totalQty()){toast("当前还没有点单");return}if(confirm("确定重置本次点单吗？")){products.forEach(p=>qty[p.name]=0);persistCart();renderMenu();renderTotals();closeCart();toast("已重置，可以重新点单")}};
+$("favoritesToggle").onclick=()=>{favoritesOnly=true;activeCat="全部";renderCats();renderQuickbar();renderMenu();};
+$("allToggle").onclick=()=>{favoritesOnly=false;activeCat="全部";renderCats();renderQuickbar();renderMenu();};
+renderCats();renderQuickbar();renderMenu();renderTotals();
+</script>
+</body>
+</html>
