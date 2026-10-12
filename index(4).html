@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#11100e">
+<meta name="description" content="噜串串｜随身烧烤点单，价格清晰，自动计算总价。">
+<title>噜串串 · 烧烤点单</title>
+<link rel="icon" type="image/png" href="./mascot.png">
+<link rel="apple-touch-icon" href="./mascot.png">
+<link rel="manifest" href="./manifest.json">
+<style>
+:root{
+  --bg:#11100e; --panel:#1b1916; --panel2:#211e19; --gold:#d8b56d;
+  --gold2:#f0d79a; --cream:#f6efdf; --muted:#a49a87; --line:#393126;
+  --green:#8a9a72; --danger:#cf8c73; --shadow:0 12px 30px #0005;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(ellipse at 50% -10%,#40321e 0%,var(--bg) 42%);color:var(--cream);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+button,input{font:inherit}
+button{cursor:pointer}
+.hero{position:relative;overflow:hidden;padding:22px 18px 20px;background:linear-gradient(135deg,#282219,#15130f 72%);border-bottom:1px solid #6b542d}
+.hero:after{content:"";position:absolute;right:-75px;top:-100px;width:260px;height:260px;border:1px solid #d8b56d24;border-radius:50%;box-shadow:0 0 0 24px #d8b56d08,0 0 0 48px #d8b56d05;pointer-events:none}
+.hero-top{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-icon{width:58px;height:58px;object-fit:cover;border-radius:17px;border:1px solid #d8b56d88;box-shadow:0 5px 18px #0005;background:#8a9a72}
+.kicker{font-size:10px;letter-spacing:3px;color:var(--gold);font-weight:800}
+h1{font-size:29px;letter-spacing:3px;margin:4px 0 3px;font-weight:900}
+.subtitle{font-size:12px;color:#b8ad98;letter-spacing:.5px}
+.reset{border:1px solid #d8b56d65;color:var(--gold2);background:#d8b56d0b;border-radius:999px;padding:8px 11px;font-size:11px;white-space:nowrap}
+.hero-metrics{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.metric{padding:12px 14px;background:linear-gradient(135deg,#ffffff0b,#ffffff03);border:1px solid #d8b56d28;border-radius:14px}
+.metric small{display:block;font-size:11px;color:#b7aa93;margin-bottom:5px}
+.metric strong{font-size:23px;font-weight:850;color:var(--gold2)}
+.toolbar{padding:13px 13px 8px;position:sticky;top:0;z-index:5;background:#11100eeb;backdrop-filter:blur(16px);border-bottom:1px solid #ffffff08}
+.searchbox{display:flex;align-items:center;gap:9px;background:#201d18;border:1px solid #40382a;border-radius:13px;padding:0 13px}
+.searchbox span{font-size:18px;color:var(--gold)}
+.searchbox input{width:100%;border:0;outline:0;background:transparent;color:var(--cream);padding:13px 0;font-size:14px}
+.searchbox input::placeholder{color:#827967}
+.categories{display:flex;gap:8px;overflow-x:auto;padding:12px 1px 5px;scrollbar-width:none}
+.categories::-webkit-scrollbar{display:none}
+.chip{border:1px solid #41382a;background:#1b1915;color:#b6aa94;border-radius:999px;padding:9px 14px;white-space:nowrap;font-size:12px}
+.chip.active{background:linear-gradient(135deg,#e7ca84,#b89149);border-color:#e7ca84;color:#1c170e;font-weight:850;box-shadow:0 4px 14px #d8b56d22}
+.quickbar{display:flex;align-items:center;gap:9px;padding:4px 1px 2px;overflow:hidden}
+.quick-chip{border:1px solid #4b3d27;background:#211d16;color:#d8bf84;border-radius:999px;padding:8px 12px;font-size:11px;white-space:nowrap}
+.quick-chip.selected{background:#d8b56d;color:#21180c;border-color:#d8b56d;font-weight:800}
+.quick-hint{font-size:10px;color:#817866;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:16px 16px 11px}
+.section-head h2{font-size:17px;margin:0;font-weight:850;letter-spacing:1px}
+.section-head span{font-size:11px;color:var(--muted)}
+.section-head h2:before{content:"";display:inline-block;width:3px;height:15px;background:var(--gold);border-radius:4px;margin-right:8px;vertical-align:-2px}
+.menu{padding:0 12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.card{position:relative;min-width:0;background:linear-gradient(150deg,#211e19,#191714);border:1px solid #3b3225;border-radius:16px;padding:13px 12px 11px;box-shadow:0 5px 14px #0002;display:flex;flex-direction:column;min-height:137px;transition:border-color .15s,transform .15s}
+.card:active{transform:scale(.985);border-color:#a8874d}
+.card-top{display:flex;justify-content:space-between;gap:5px;align-items:flex-start}
+.card-name-line{display:flex;align-items:flex-start;gap:3px;min-width:0;flex:1}
+.name{font-size:14px;font-weight:750;line-height:1.5;overflow-wrap:anywhere}
+.fav-star{flex-shrink:0;border:0;background:transparent;color:var(--gold);font-size:18px;padding:0 0 0 3px;line-height:1}
+.tag{font-size:9px;color:#b5a17b;background:#d8b56d12;border:1px solid #d8b56d20;padding:3px 5px;border-radius:5px;white-space:nowrap;flex-shrink:0}
+.price{margin-top:10px;color:var(--gold2);font-size:21px;font-weight:900;letter-spacing:-.3px}
+.price small{font-size:10px;font-weight:500;color:#9d927e;letter-spacing:0}
+.controls{margin-top:auto;padding-top:12px;display:flex;justify-content:flex-end;align-items:center;gap:11px}
+.qty{font-size:14px;font-weight:850;min-width:12px;text-align:center;color:var(--cream)}
+.step{width:31px;height:31px;border:0;border-radius:50%;display:grid;place-items:center;font-size:20px;line-height:1}
+.step.minus{background:#302b23;color:#c0b39a}
+.step.minus:disabled{opacity:.3}
+.step.plus{background:linear-gradient(135deg,#e7ca84,#b89149);color:#1b150b;box-shadow:0 3px 9px #0003;font-weight:800}
+.empty{grid-column:1/-1;text-align:center;padding:42px 10px;color:var(--muted);font-size:14px}
+.note{margin:16px 17px 0;font-size:10px;color:#756d5e;line-height:1.7}
+.bottom{position:fixed;z-index:8;bottom:0;left:0;right:0;padding:10px 13px calc(10px + env(safe-area-inset-bottom));background:#171511ed;backdrop-filter:blur(18px);border-top:1px solid #5b482b;display:flex;align-items:center;gap:9px}
+.cart-summary{flex:1;min-width:0}
+.cart-label{font-size:10px;color:#a69a83;margin-bottom:3px}
+.total-line{display:flex;align-items:baseline;gap:5px}
+.total{font-size:25px;font-weight:900;color:var(--gold2);letter-spacing:-.5px}
+.currency{font-size:12px;color:var(--gold);font-weight:800}
+.items-count{font-size:10px;color:#9d927e}
+.view-cart{background:#29241b;color:#e3c781;border:1px solid #6a542e;border-radius:999px;padding:11px 12px;font-size:12px;font-weight:750;white-space:nowrap}
+.confirm{border:0;background:linear-gradient(135deg,#e7ca84,#bd944b);color:#21180b;border-radius:999px;padding:13px 18px;font-size:13px;font-weight:900;white-space:nowrap;box-shadow:0 5px 13px #0003}
+.confirm:disabled{opacity:.35;box-shadow:none}
+.overlay{position:fixed;inset:0;background:#000a;z-index:20;display:none;align-items:flex-end}
+.overlay.show{display:flex}
+.sheet{background:#1a1814;border:1px solid #51422a;border-bottom:0;width:100%;max-height:82vh;border-radius:24px 24px 0 0;padding:20px 17px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;box-shadow:0 -8px 30px #0005}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:15px;border-bottom:1px solid var(--line)}
+.sheet-head h3{font-size:18px;margin:0}
+.text-btn{border:0;background:transparent;color:var(--gold);font-size:12px;padding:8px}
+.cart-list{overflow:auto;flex:1;min-height:80px}
+.cart-row{display:flex;align-items:center;gap:9px;padding:13px 0;border-bottom:1px solid #302a20}
+.cart-info{flex:1;min-width:0}
+.cart-name{font-size:14px;font-weight:750}
+.cart-detail{font-size:11px;color:var(--muted);margin-top:4px}
+.cart-subtotal{font-size:13px;font-weight:850;color:var(--gold2);min-width:54px;text-align:right}
+.mini-controls{display:flex;align-items:center;gap:7px}
+.mini-controls button{width:28px;height:28px;border-radius:50%;border:1px solid #51432d;background:#252119;color:#e6d6b6;font-size:17px}
+.mini-controls b{font-size:12px;min-width:10px;text-align:center}
+.sheet-bottom{padding-top:15px}
+.sheet-total{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:12px;color:#b4a68d}
+.sheet-total strong{font-size:24px;color:var(--gold2)}
+.sheet .confirm{width:100%;padding:14px}
+.sheet-actions{display:grid;grid-template-columns:1fr 1.5fr;gap:9px}
+.share-btn{border:1px solid #5b482b;background:#242017;color:#e0c27c;border-radius:999px;font-size:12px;font-weight:750;padding:12px 8px}
+.toast{position:fixed;z-index:40;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#e5c77e;color:#21190c;padding:10px 16px;border-radius:999px;font-size:12px;display:none;white-space:nowrap;box-shadow:var(--shadow)}
+.toast.show{display:block}
+@media(min-width:600px){
+ body{max-width:600px;margin:0 auto;padding-bottom:110px;border-left:1px solid #28231b;border-right:1px solid #28231b}
+ .hero{border-radius:0}
+ .bottom{left:50%;transform:translateX(-50%);width:100%;max-width:600px}
+ .overlay{justify-content:center;align-items:center}
+ .sheet{max-width:560px;border-radius:24px;max-height:80vh;border-bottom:1px solid #51422a}
+ .menu{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:360px){h1{font-size:25px}.brand-icon{width:49px;height:49px}.menu{gap:8px;padding:0 9px}.card{padding:11px 9px}.name{font-size:13px}.tag{font-size:8px}.confirm{padding:12px 13px}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-top">
+    <div class="brand">
+      <img class="brand-icon" src="./mascot.png" alt="噜串串吉祥物">
+      <div>
+        <div class="kicker">LU CHUAN CHUAN · BBQ ORDER</div>
+        <h1>噜串串</h1>
+        <div class="subtitle">一串好味道 · 点单明明白白</div>
+      </div>
+    </div>
+    <button class="reset" id="resetBtn">重置本次</button>
+  </div>
+  <div class="hero-metrics">
+    <div class="metric"><small>已选菜品数量</small><strong id="qtyMetric">0 <span style="font-size:12px;font-weight:500">件</span></strong></div>
+    <div class="metric"><small>当前预计总价</small><strong id="totalMetric">¥0.00</strong></div>
+  </div>
+</header>
+<div class="toolbar">
+  <label class="searchbox"><span>⌕</span><input id="search" type="search" placeholder="搜菜名，比如：鸡心、鱿鱼" autocomplete="off"><span id="clearSearch" style="display:none;cursor:pointer">×</span></label>
+  <nav class="categories" id="categories"></nav>
+  <div class="quickbar"><button id="favoritesToggle" class="quick-chip">☆ 常点菜品</button><span class="quick-hint">点菜名旁 ☆ 可加入常点</span></div>
+</div>
+<div class="section-head"><h2>今晚吃点什么</h2><span id="resultCount">菜单载入中</span></div>
+<main class="menu" id="menu"></main>
+<p class="note">价格按录入菜单显示，点单金额为预估金额。已选数量和常点菜品会保存在当前浏览器中，重新打开通常可以继续点单。</p>
+<footer class="bottom">
+  <div class="cart-summary"><div class="cart-label">本次点单总计</div><div class="total-line"><span class="currency">¥</span><strong class="total" id="bottomTotal">0.00</strong><span class="items-count" id="bottomQty">0 件</span></div></div>
+  <button class="view-cart" id="viewCart">清单 <span id="cartBadge">0</span></button>
+  <button class="confirm" id="confirmBtn" disabled>查看点单</button>
+</footer>
+<div class="overlay" id="overlay" role="dialog" aria-modal="true">
+  <section class="sheet">
+    <div class="sheet-head"><h3>我的点单清单</h3><button class="text-btn" id="clearCart">全部清空</button></div>
+    <div class="cart-list" id="cartList"></div>
+    <div class="sheet-bottom"><div class="sheet-total"><span>共 <b id="sheetQty">0</b> 件（串 / 把 / 份）</span><strong id="sheetTotal">¥0.00</strong></div><div class="sheet-actions"><button class="share-btn" id="copyList">复制点单清单</button><button class="confirm" id="doneBtn">返回菜单继续点</button></div></div>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const products = [
+{name:"年糕",price:1,unit:"串",cat:"素菜豆制品"},
+{name:"豆腐皮卷韭菜",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"豆腐皮卷金针菇",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"四季豆",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"香菇",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"娃娃菜",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"青菜",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"花菜",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"芋头",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"豆腐干",price:1.5,unit:"串",cat:"素菜豆制品"},
+{name:"里脊肉",price:1.5,unit:"串",cat:"肉类"},
+{name:"双汇王中王",price:2,unit:"串",cat:"肉类"},
+{name:"冻豆腐",price:2,unit:"串",cat:"素菜豆制品"},
+{name:"牛板筋",price:2,unit:"串",cat:"肉类"},
+{name:"面筋",price:2,unit:"串",cat:"素菜豆制品"},
+{name:"翅尖",price:2,unit:"串",cat:"肉类"},
+{name:"里脊排骨",price:2,unit:"串",cat:"肉类"},
+{name:"鸡心",price:2,unit:"串",cat:"肉类"},
+{name:"鸡胗",price:2,unit:"串",cat:"肉类"},
+{name:"鱼豆腐",price:2,unit:"串",cat:"丸类海鲜"},
+{name:"鱼丸",price:2,unit:"串",cat:"丸类海鲜"},
+{name:"热狗肠",price:2.5,unit:"串",cat:"肉类"},
+{name:"脆皮豆饼",price:2.5,unit:"串",cat:"素菜豆制品"},
+{name:"澳洲大串",price:2.5,unit:"串",cat:"肉类"},
+{name:"骨肉相连",price:2.5,unit:"串",cat:"肉类"},
+{name:"川香鸡柳",price:2.5,unit:"串",cat:"肉类"},
+{name:"火龙串",price:2.5,unit:"串",cat:"肉类"},
+{name:"羊肉",price:2.5,unit:"串",cat:"肉类"},
+{name:"鸭肠",price:2.5,unit:"串",cat:"肉类"},
+{name:"面皮粉蒸片",price:3,unit:"串",cat:"素菜豆制品"},
+{name:"辣妹子",price:3,unit:"串",cat:"肉类"},
+{name:"大肠筋",price:3,unit:"串",cat:"肉类"},
+{name:"鸡皮棒",price:3,unit:"串",cat:"肉类"},
+{name:"土豆片",price:3,unit:"串",cat:"素菜豆制品"},
+{name:"青椒脆骨",price:3,unit:"串",cat:"肉类"},
+{name:"掌中宝",price:3,unit:"串",cat:"肉类"},
+{name:"豆腐泡",price:3,unit:"串",cat:"素菜豆制品"},
+{name:"大罗虾",price:3,unit:"串",cat:"丸类海鲜"},
+{name:"鱿鱼须",price:4,unit:"串",cat:"丸类海鲜"},
+{name:"翅中",price:4.5,unit:"串",cat:"肉类"},
+{name:"鱼片",price:5,unit:"串",cat:"丸类海鲜"},
+{name:"香酥小鸡排",price:6,unit:"串",cat:"肉类"},
+{name:"大鱿鱼",price:6,unit:"条",cat:"丸类海鲜"},
+{name:"小腊肠",price:8,unit:"把",cat:"肉类"},
+{name:"鸭头",price:8,unit:"串",cat:"肉类"},
+{name:"小鲜牛肉",price:10,unit:"把",cat:"肉类"},
+{name:"大鸡排",price:10,unit:"份",cat:"肉类"},
+{name:"牛油粒",price:15,unit:"把",cat:"肉类"}
+];
+const cats = ["全部","素菜豆制品","肉类","丸类海鲜"];
+let favoritesOnly = false, activeCat = "全部";
+const qty = {};
+products.forEach(p=>qty[p.name]=0);
+const STORAGE_KEY = "luchuanchuan_order_cart_v2";
+const FAV_KEY = "luchuanchuan_order_favorites_v1";
+let favorites = new Set();
+try { const a=JSON.parse(localStorage.getItem(FAV_KEY)||"[]"); if(Array.isArray(a))favorites=new Set(a.filter(n=>typeof n==="string")); } catch(e){}
+try { const s=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}"); if(s.qty)products.forEach(p=>qty[p.name]=Math.max(0,Number(s.qty[p.name])||0)); } catch(e){}
+function persistCart(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({qty,savedAt:Date.now()}))}catch(e){}}
+function persistFavorites(){try{localStorage.setItem(FAV_KEY,JSON.stringify([...favorites]))}catch(e){}}
+const $=id=>document.getElementById(id);
+const money=n=>"¥"+(Math.round((n+Number.EPSILON)*100)/100).toFixed(2);
+const totalQty=()=>products.reduce((s,p)=>s+(qty[p.name]||0),0);
+const total=()=>products.reduce((s,p)=>s+p.price*(qty[p.name]||0),0);
+function renderCats(){
+ $("categories").innerHTML=cats.map(c=>`<button class="chip ${c===activeCat?"active":""}" data-cat="${c}">${c==="全部"?"全部菜品":c}</button>`).join("");
+ $("categories").querySelectorAll("button").forEach(b=>b.onclick=()=>{favoritesOnly=false;activeCat=b.dataset.cat;renderCats();renderQuickbar();renderMenu()});
+}
+function renderMenu(){
+ const q=$("search").value.trim().toLowerCase();
+ const filtered=products.filter(p=>(activeCat==="全部"||p.cat===activeCat)&&p.name.toLowerCase().includes(q)&&(!favoritesOnly||favorites.has(p.name)));
+ $("resultCount").textContent=`共 ${filtered.length} 款`;
+ $("menu").innerHTML=filtered.length?filtered.map(p=>`<article class="card">
+ <div class="card-top"><div class="card-name-line"><div class="name">${p.name}</div><button class="fav-star" data-fav="${p.name}" aria-label="设为常点">${favorites.has(p.name)?"★":"☆"}</button></div><span class="tag">${p.cat==="素菜豆制品"?"素菜":p.cat==="丸类海鲜"?"海鲜/丸类":p.cat}</span></div>
+ <div class="price">${p.price%1?p.price.toFixed(1):p.price}<small> 元 / ${p.unit}</small></div>
+ <div class="controls"><button class="step minus" data-name="${p.name}" data-delta="-1" ${!qty[p.name]?"disabled":""} aria-label="减少">−</button><span class="qty">${qty[p.name]||0}</span><button class="step plus" data-name="${p.name}" data-delta="1" aria-label="增加">＋</button></div>
+ </article>`).join(""):`<div class="empty">没有找到这道菜<br>换个关键词试试看</div>`;
+ $("menu").querySelectorAll("button.step").forEach(b=>b.onclick=()=>change(b.dataset.name,Number(b.dataset.delta)));
+ $("menu").querySelectorAll("button.fav-star").forEach(b=>b.onclick=e=>{e.stopPropagation();const n=b.dataset.fav;if(favorites.has(n)){favorites.delete(n);toast("已取消常点："+n)}else{favorites.add(n);toast("已加入常点："+n)}persistFavorites();renderMenu();renderQuickbar()});
+}
+function renderQuickbar(){$("favoritesToggle").classList.toggle("selected",favoritesOnly);$("favoritesToggle").textContent=`☆ 常点菜品${favorites.size?` (${favorites.size})`:""}`}
+function renderTotals(){
+ const q=totalQty(),t=total();
+ $("qtyMetric").innerHTML=`${q} <span style="font-size:12px;font-weight:500">件</span>`;
+ $("totalMetric").textContent=money(t);$("bottomTotal").textContent=t.toFixed(2);
+ $("bottomQty").textContent=`${q} 件`;$("cartBadge").textContent=q;$("confirmBtn").disabled=q===0;
+ $("sheetQty").textContent=q;$("sheetTotal").textContent=money(t);
+}
+function change(name,delta){qty[name]=Math.max(0,(qty[name]||0)+delta);persistCart();renderMenu();renderTotals();if($("overlay").classList.contains("show"))renderCart()}
+function renderCart(){
+ const chosen=products.filter(p=>qty[p.name]>0);
+ $("cartList").innerHTML=chosen.length?chosen.map(p=>`<div class="cart-row"><div class="cart-info"><div class="cart-name">${p.name}</div><div class="cart-detail">${money(p.price)} / ${p.unit}</div></div><div class="mini-controls"><button data-name="${p.name}" data-delta="-1">−</button><b>${qty[p.name]}</b><button data-name="${p.name}" data-delta="1">＋</button></div><div class="cart-subtotal">${money(p.price*qty[p.name])}</div></div>`).join(""):`<div class="empty">清单还是空的，去菜单挑几串吧～</div>`;
+ $("cartList").querySelectorAll("button").forEach(b=>b.onclick=()=>change(b.dataset.name,Number(b.dataset.delta)));
+}
+function openCart(){renderCart();$("overlay").classList.add("show")}
+function closeCart(){$("overlay").classList.remove("show")}
+function toast(msg){$("toast").textContent=msg;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1900)}
+$("search").addEventListener("input",()=>{$("clearSearch").style.display=$("search").value?"block":"none";renderMenu()});
+$("clearSearch").onclick=()=>{$("search").value="";$("clearSearch").style.display="none";renderMenu()};
+$("viewCart").onclick=openCart;$("confirmBtn").onclick=openCart;$("doneBtn").onclick=closeCart;
+$("copyList").onclick=async()=>{const chosen=products.filter(p=>qty[p.name]>0);if(!chosen.length){toast("清单还是空的");return}const lines=chosen.map(p=>`${p.name} × ${qty[p.name]} ${p.unit} = ${(p.price*qty[p.name]).toFixed(2)}元`);lines.push(`合计：${totalQty()}件，${total().toFixed(2)}元`);const txt=lines.join("\n");try{await navigator.clipboard.writeText(txt);toast("点单清单已复制")}catch(e){const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();toast("点单清单已复制")}};
+$("overlay").addEventListener("click",e=>{if(e.target===$("overlay"))closeCart()});
+$("clearCart").onclick=()=>{if(!totalQty()){toast("清单已经是空的");return}if(confirm("确定清空本次所有已选菜品吗？")){products.forEach(p=>qty[p.name]=0);persistCart();renderMenu();renderTotals();renderCart();toast("已清空本次点单")}};
+$("resetBtn").onclick=()=>{if(!totalQty()){toast("当前还没有点单");return}if(confirm("确定重置本次点单吗？")){products.forEach(p=>qty[p.name]=0);persistCart();renderMenu();renderTotals();closeCart();toast("已重置，可以重新点单")}};
+$("favoritesToggle").onclick=()=>{favoritesOnly=!favoritesOnly;activeCat="全部";renderCats();renderQuickbar();renderMenu()};
+renderCats();renderQuickbar();renderMenu();renderTotals();
+</script>
+</body>
+</html>

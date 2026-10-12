@@ -1,0 +1,16 @@
+{
+  "name": "噜串串 · 烧烤点单",
+  "short_name": "噜串串",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#11100e",
+  "theme_color": "#11100e",
+  "icons": [
+    {
+      "src": "./mascot.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
