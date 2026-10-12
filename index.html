@@ -107,7 +107,7 @@ h1{font-size:26px;letter-spacing:2px;margin:5px 0 4px;font-weight:850}
 <div class="toolbar">
   <label class="searchbox"><span>⌕</span><input id="search" type="search" placeholder="搜菜名，比如：鸡心、鱿鱼" autocomplete="off"><span id="clearSearch" style="display:none;cursor:pointer">×</span></label>
   <nav class="categories" id="categories"></nav>
-  <div class="quickbar"><button id="favoritesToggle" class="quick-chip">☆ 常点菜品</button><button id="allToggle" class="quick-chip selected">全部菜品</button><span class="quick-hint">点菜名旁 ☆ 可加入常点</span></div>
+  <div class="quickbar"><button id="favoritesToggle" class="quick-chip">☆ 常点菜品</button><span class="quick-hint">点菜名旁 ☆ 可加入常点</span></div>
 </div>
 <div class="section-head"><h2>菜单列表</h2><span id="resultCount">菜单载入中</span></div>
 <main class="menu" id="menu"></main>
@@ -209,7 +209,7 @@ const totalQty=()=>products.reduce((s,p)=>s+(qty[p.name]||0),0);
 const total=()=>products.reduce((s,p)=>s+p.price*(qty[p.name]||0),0);
 function renderCats(){
   $("categories").innerHTML=cats.map(c=>`<button class="chip ${c===activeCat?"active":""}" data-cat="${c}">${c==="全部"?"全部菜品":c}</button>`).join("");
-  $("categories").querySelectorAll("button").forEach(b=>b.onclick=()=>{activeCat=b.dataset.cat;renderCats();renderMenu()});
+  $("categories").querySelectorAll("button").forEach(b=>b.onclick=()=>{favoritesOnly=false;activeCat=b.dataset.cat;renderCats();renderQuickbar();renderMenu()});
 }
 function renderMenu(){
  const q=$("search").value.trim().toLowerCase();
@@ -225,7 +225,6 @@ function renderMenu(){
 }
 function renderQuickbar(){
  $("favoritesToggle").classList.toggle("selected",favoritesOnly);
- $("allToggle").classList.toggle("selected",!favoritesOnly);
  $("favoritesToggle").textContent=`☆ 常点菜品${favorites.size?` (${favorites.size})`:""}`;
 }
 function renderTotals(){
@@ -255,8 +254,7 @@ $("copyList").onclick=async()=>{const chosen=products.filter(p=>qty[p.name]>0);i
 $("overlay").addEventListener("click",e=>{if(e.target===$("overlay"))closeCart()});
 $("clearCart").onclick=()=>{if(!totalQty()){toast("清单已经是空的");return}if(confirm("确定清空本次所有已选菜品吗？")){products.forEach(p=>qty[p.name]=0);persistCart();renderMenu();renderTotals();renderCart();toast("已清空本次点单")}};
 $("resetBtn").onclick=()=>{if(!totalQty()){toast("当前还没有点单");return}if(confirm("确定重置本次点单吗？")){products.forEach(p=>qty[p.name]=0);persistCart();renderMenu();renderTotals();closeCart();toast("已重置，可以重新点单")}};
-$("favoritesToggle").onclick=()=>{favoritesOnly=true;activeCat="全部";renderCats();renderQuickbar();renderMenu();};
-$("allToggle").onclick=()=>{favoritesOnly=false;activeCat="全部";renderCats();renderQuickbar();renderMenu();};
+$("favoritesToggle").onclick=()=>{favoritesOnly=!favoritesOnly;activeCat="全部";renderCats();renderQuickbar();renderMenu();};
 renderCats();renderQuickbar();renderMenu();renderTotals();
 </script>
 </body>
