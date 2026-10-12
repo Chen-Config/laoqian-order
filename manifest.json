@@ -8,7 +8,7 @@
   "theme_color": "#d4b89c",
   "icons": [
     {
-      "src": "https://beeimg.us.ci/temp/6acc9e76567f8.png"
+      "src": "mascot.png"
       "sizes": "1024x1024",
       "type": "image/png"
     }
